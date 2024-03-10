@@ -1,6 +1,6 @@
 import tkinter as tk
-from tkinter import messagebox
-from tkinter import simpledialog
+from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 from docx import Document
 import os
 
@@ -45,11 +45,7 @@ def calculate_risk():
     
     Krs = points / 5
     
-    generate_doc(Krs)
-
-def generate_doc(Krs):
-    document = Document()
-    document.add_heading('Результаты расчета Крс', 0)
+    result_text = f'Крс: {Krs:.1f}\n'
     
     if Krs < 2:
         recommendation = "Целевая гипоагрегация достигнута. Коррекция терапии не требуется. Риск повторных сосудистых событий низкий."
@@ -58,39 +54,52 @@ def generate_doc(Krs):
     else:
         recommendation = "Целевая гипоагрегация не достигнута! Требуется срочная коррекция терапии. Рекомендован переход на ДАТТ с применением комбинации препаратов: Ацетилсалициловая кислота 75 мг + Тикагрелор 90 мг х 2 раза в день. Риск повторных сосудистых событий крайне высокий. Повторное исследование в динамике."
     
-    document.add_paragraph(f'Крс: {Krs:.1f}')
-    document.add_paragraph('Рекомендации:')
-    document.add_paragraph(recommendation)
-    
-    filename = 'Результаты_расчета.docx'
-    document.save(filename)
-    messagebox.showinfo("Готово", f"Результаты сохранены в файле {filename}")
-    os.startfile(filename)
+    result_text += recommendation
+    result_display.config(state=tk.NORMAL)  # Разрешить редактирование текста
+    result_display.delete(1.0, tk.END)  # Очистить существующий текст
+    result_display.insert(tk.END, result_text)  # Вставить новый текст
+    result_display.config(state=tk.DISABLED)  # Запретить редактирование текста
 
 root = tk.Tk()
 root.title("CardioRiskCalc")
+root.geometry("600x400") # Увеличим размер окна
 
-tk.Label(root, text="Спонтанная агрегация (СА):").grid(row=0)
-entry_SA = tk.Entry(root)
-entry_SA.grid(row=0, column=1)
+# Улучшаем шрифты и добавляем отступы для более приятного вида
+style = ttk.Style()
+style.configure("TLabel", padding=5, font="Arial 12")
+style.configure("TEntry", padding=5, font="Arial 12")
+style.configure("TButton", padding=5, font="Arial 12", background="#f0f0f0")
 
-tk.Label(root, text="ИАак:").grid(row=1)
-entry_IAAK = tk.Entry(root)
-entry_IAAK.grid(row=1, column=1)
+ttk.Label(root, text="Спонтанная агрегация (СА) в %:").grid(row=0, column=0, sticky="w")
+entry_SA = ttk.Entry(root)
+entry_SA.grid(row=0, column=1, sticky="ew")
 
-tk.Label(root, text="ВТ:").grid(row=2)
-entry_VT = tk.Entry(root)
-entry_VT.grid(row=2, column=1)
+ttk.Label(root, text="ИАак (арахидоновая кислота) в %:").grid(row=1, column=0, sticky="w")
+entry_IAAK = ttk.Entry(root)
+entry_IAAK.grid(row=1, column=1, sticky="ew")
 
-tk.Label(root, text="ФГ:").grid(row=3)
-combo_FG = tk.StringVar(root)
+ttk.Label(root, text="ВТ (средний размер тромбоцитов, фл/тромбоцит):").grid(row=2, column=0, sticky="w")
+entry_VT = ttk.Entry(root)
+entry_VT.grid(row=2, column=1, sticky="ew")
+
+ttk.Label(root, text="ФГ (фармакогенетическое тестирование):").grid(row=3, column=0, sticky="w")
+combo_FG = ttk.Combobox(root, values=["2С19*17", "2С19*1", "2С19*2/2С19*3"])
+combo_FG.grid(row=3, column=1, sticky="ew")
 combo_FG.set("2С19*17") # default value
-tk.OptionMenu(root, combo_FG, "2С19*17", "2С19*1", "2С19*2/2С19*3").grid(row=3, column=1)
 
-tk.Label(root, text="ИАадф5:").grid(row=4)
-entry_IAADF5 = tk.Entry(root)
-entry_IAADF5.grid(row=4, column=1)
+ttk.Label(root, text="ИАадф5 (агрегация с АДФ 50 мкмоль) в %:").grid(row=4, column=0, sticky="w")
+entry_IAADF5 = ttk.Entry(root)
+entry_IAADF5.grid(row=4, column=1, sticky="ew")
 
-tk.Button(root, text='Рассчитать', command=calculate_risk).grid(row=5, column=1, pady=4)
+calculate_btn = ttk.Button(root, text='Рассчитать', command=calculate_risk)
+calculate_btn.grid(row=5, column=1, pady=10, sticky="ew")
+
+# Место для вывода результатов и рекомендаций
+result_display = ScrolledText(root, wrap=tk.WORD, height=10, font="Arial 10")
+result_display.grid(row=6, column=0, columnspan=2, sticky="nsew", pady=10, padx=10)
+result_display.config(state=tk.DISABLED)  # Сделать текстовое поле только для чтения
+
+root.grid_columnconfigure(1, weight=1)
+root.grid_rowconfigure(6, weight=1)
 
 root.mainloop()
