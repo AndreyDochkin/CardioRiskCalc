@@ -62,44 +62,55 @@ def calculate_risk():
 
 root = tk.Tk()
 root.title("CardioRiskCalc")
-root.geometry("600x400") # Увеличим размер окна
+root.geometry("640x480") # Немного увеличим размер окна для лучшего размещения элементов
 
-# Улучшаем шрифты и добавляем отступы для более приятного вида
+# Определение и применение стилей для элементов интерфейса
 style = ttk.Style()
-style.configure("TLabel", padding=5, font="Arial 12")
-style.configure("TEntry", padding=5, font="Arial 12")
-style.configure("TButton", padding=5, font="Arial 12", background="#f0f0f0")
+style.theme_use('clam') # Использование темы 'clam' для более современного вида
 
-ttk.Label(root, text="Спонтанная агрегация (СА) в %:").grid(row=0, column=0, sticky="w")
-entry_SA = ttk.Entry(root)
+# Определение цветовой схемы
+style.configure('TLabel', padding=5, font="Arial 12", background="#f3f4f6", foreground="#383838")
+style.configure('TEntry', padding=5, font="Arial 12", fieldbackground="#ffffff", foreground="#383838")
+style.configure('TButton', padding=5, font="Arial 12", background="#0078D7", foreground="#ffffff")
+style.configure('TCombobox', padding=5, font="Arial 12", fieldbackground="#ffffff", foreground="#383838")
+style.map('TButton', background=[('active', '#0053a6')])
+
+# Добавление отступов к главному окну для элементов
+mainframe = ttk.Frame(root, padding="10 10 10 10")
+mainframe.grid(row=0, column=0, sticky="nsew")
+root.grid_columnconfigure(0, weight=1)
+root.grid_rowconfigure(0, weight=1)
+
+# Элементы интерфейса...
+ttk.Label(mainframe, text="Спонтанная агрегация (СА) в %:").grid(row=0, column=0, sticky="w")
+entry_SA = ttk.Entry(mainframe)
 entry_SA.grid(row=0, column=1, sticky="ew")
 
-ttk.Label(root, text="ИАак (арахидоновая кислота) в %:").grid(row=1, column=0, sticky="w")
-entry_IAAK = ttk.Entry(root)
+ttk.Label(mainframe, text="ИАак (арахидоновая кислота) в %:").grid(row=1, column=0, sticky="w")
+entry_IAAK = ttk.Entry(mainframe)
 entry_IAAK.grid(row=1, column=1, sticky="ew")
 
-ttk.Label(root, text="ВТ (средний размер тромбоцитов, фл/тромбоцит):").grid(row=2, column=0, sticky="w")
-entry_VT = ttk.Entry(root)
+ttk.Label(mainframe, text="ВТ (средний размер тромбоцитов, фл/тромбоцит):").grid(row=2, column=0, sticky="w")
+entry_VT = ttk.Entry(mainframe)
 entry_VT.grid(row=2, column=1, sticky="ew")
 
-ttk.Label(root, text="ФГ (фармакогенетическое тестирование):").grid(row=3, column=0, sticky="w")
-combo_FG = ttk.Combobox(root, values=["2С19*17", "2С19*1", "2С19*2/2С19*3"])
+ttk.Label(mainframe, text="ФГ (фармакогенетическое тестирование):").grid(row=3, column=0, sticky="w")
+combo_FG = ttk.Combobox(mainframe, values=["2С19*17", "2С19*1", "2С19*2/2С19*3"], state="readonly")
 combo_FG.grid(row=3, column=1, sticky="ew")
-combo_FG.set("2С19*17") # default value
+combo_FG.set("2С19*17") # Значение по умолчанию
 
-ttk.Label(root, text="ИАадф5 (агрегация с АДФ 50 мкмоль) в %:").grid(row=4, column=0, sticky="w")
-entry_IAADF5 = ttk.Entry(root)
+ttk.Label(mainframe, text="ИАадф5 (агрегация с АДФ 50 мкмоль) в %:").grid(row=4, column=0, sticky="w")
+entry_IAADF5 = ttk.Entry(mainframe)
 entry_IAADF5.grid(row=4, column=1, sticky="ew")
 
-calculate_btn = ttk.Button(root, text='Рассчитать', command=calculate_risk)
-calculate_btn.grid(row=5, column=1, pady=10, sticky="ew")
+calculate_btn = ttk.Button(mainframe, text='Рассчитать', command=calculate_risk)
+calculate_btn.grid(row=5, column=0, columnspan=2, pady=10)
 
-# Место для вывода результатов и рекомендаций
-result_display = ScrolledText(root, wrap=tk.WORD, height=10, font="Arial 10")
-result_display.grid(row=6, column=0, columnspan=2, sticky="nsew", pady=10, padx=10)
-result_display.config(state=tk.DISABLED)  # Сделать текстовое поле только для чтения
+result_display = ScrolledText(mainframe, wrap=tk.WORD, height=10, font="Arial 10")
+result_display.grid(row=6, column=0, columnspan=2, sticky="nsew", pady=10)
+result_display.config(state=tk.DISABLED)
 
-root.grid_columnconfigure(1, weight=1)
-root.grid_rowconfigure(6, weight=1)
+for child in mainframe.winfo_children():
+    child.grid_configure(padx=5, pady=5) # Добавляем отступы к элементам
 
 root.mainloop()
