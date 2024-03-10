@@ -78,6 +78,7 @@ def calculate_risk():
 
 root = tk.Tk()
 root.title("CardioRiskCalc")
+# root.iconbitmap("ico.ico")
 # Получаем размеры экрана
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -92,7 +93,7 @@ y = (screen_height - window_height) // 2
 root.geometry(f"{window_width}x{window_height}+{x}+{y}")
 
 style = ttk.Style()
-style.theme_use('alt')
+style.theme_use('clam')
 style.configure('TLabel', font="Arial 12", foreground="#383838")
 style.configure('TEntry', font="Arial 12")
 style.configure('TButton', font="Arial 12", background="#0078D7", foreground="#ffffff")
