@@ -1,92 +1,96 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import simpledialog
 from docx import Document
-from docx.shared import Inches
 import os
-import sys
-from PyQt5 import QtWidgets, uic
-from PyQt5.QtWidgets import QApplication
-from PyQt5.QtGui import QIcon
 
-MainWindow , Form = uic.loadUiType("gui.ui")
+def calculate_points_SA(SA):
+    if SA <= 19: return 1
+    elif SA <= 3: return 2
+    else: return 3
 
-class Ui(QtWidgets.QMainWindow, MainWindow):
-    def __init__(self):
-        super(Ui, self).__init__()
-        self.setupUi(self)
-        self.setWindowIcon(QIcon('app.ico'))
-        self.pushButton.clicked.connect(self.generate_doc)
-        self.lineEdit.setText('Иванов Иван')
-        self.show()
+def calculate_points_IAAK(IAAK):
+    if IAAK < 2: return 1
+    elif IAAK <= 5: return 2
+    else: return 3
 
-    def generate_doc(self):
-        # print('btn push')
-        list = [self.checkBox.checkState(),
-                self.checkBox_2.checkState(),
-                self.checkBox_3.checkState(),
-                self.checkBox_4.checkState(),
-                self.checkBox_5.checkState()]
+def calculate_points_VT(VT):
+    if VT <= 8: return 1
+    elif VT <= 10: return 2
+    else: return 3
 
-        # print(list)
-        foo = list.count(2)
-        # print(foo)
+def calculate_points_FG(FG):
+    if FG == "2С19*17": return 1
+    elif FG == "2С19*1": return 2
+    else: return 3
 
-        document = Document()
-        document.add_heading('Рекомендации по лечению', 1)
-        document.add_heading('Вывод такой:', level=1)
+def calculate_points_IAADF5(IAADF5):
+    if IAADF5 < 15: return 1
+    elif IAADF5 <= 60: return 2
+    else: return 3
 
-        if foo >= 0 and foo <= 2:
-            document.add_paragraph('от 0 до 2 баллов')
-        elif foo > 2 and foo <= 4:
-            document.add_paragraph('больше 2 баллов меньше 4')
-        elif foo > 4:
-            document.add_paragraph('больше 4 баллов')
+def calculate_risk():
+    SA = float(entry_SA.get())
+    IAAK = float(entry_IAAK.get())
+    VT = float(entry_VT.get())
+    FG = combo_FG.get()
+    IAADF5 = float(entry_IAADF5.get())
+    
+    points = 0
+    points += calculate_points_SA(SA)
+    points += calculate_points_IAAK(IAAK)
+    points += calculate_points_VT(VT)
+    points += calculate_points_FG(FG)
+    points += calculate_points_IAADF5(IAADF5)
+    
+    Krs = points / 5
+    
+    generate_doc(Krs)
 
-        self.checkBox.setCheckState(0)
-        self.checkBox_2.setCheckState(0)
-        self.checkBox_3.setCheckState(0)
-        self.checkBox_4.setCheckState(0)
-        self.checkBox_5.setCheckState(0)
+def generate_doc(Krs):
+    document = Document()
+    document.add_heading('Результаты расчета Крс', 0)
+    
+    if Krs < 2:
+        recommendation = "Целевая гипоагрегация достигнута. Коррекция терапии не требуется. Риск повторных сосудистых событий низкий."
+    elif Krs <= 2.8:
+        recommendation = "Целевая гипоагрегация не достигнута! Требуется коррекция терапии. Рекомендован переход на ДАТТ с применением комбинации препаратов: Ацетилсалициловая кислота 75 мг + Тикагрелор 90 мг х 2 раза в день. Риск повторных сосудистых событий высокий."
+    else:
+        recommendation = "Целевая гипоагрегация не достигнута! Требуется срочная коррекция терапии. Рекомендован переход на ДАТТ с применением комбинации препаратов: Ацетилсалициловая кислота 75 мг + Тикагрелор 90 мг х 2 раза в день. Риск повторных сосудистых событий крайне высокий. Повторное исследование в динамике."
+    
+    document.add_paragraph(f'Крс: {Krs:.1f}')
+    document.add_paragraph('Рекомендации:')
+    document.add_paragraph(recommendation)
+    
+    filename = 'Результаты_расчета.docx'
+    document.save(filename)
+    messagebox.showinfo("Готово", f"Результаты сохранены в файле {filename}")
+    os.startfile(filename)
 
-        text_name = self.lineEdit.text()
-        document.save(text_name + '.docx')
-        os.startfile(text_name + '.docx')
+root = tk.Tk()
+root.title("CardioRiskCalc")
 
+tk.Label(root, text="Спонтанная агрегация (СА):").grid(row=0)
+entry_SA = tk.Entry(root)
+entry_SA.grid(row=0, column=1)
 
-if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    w = Ui()
-    sys.exit(app.exec_())
+tk.Label(root, text="ИАак:").grid(row=1)
+entry_IAAK = tk.Entry(root)
+entry_IAAK.grid(row=1, column=1)
 
-# import sys
-# import PyQt5
-# from PyQt5.QtWidgets import QApplication
-# from PyQt5.QtWidgets import QWidget, QLabel ,QDialog
-# # from PyQt5 import uic
-# from PyQt5 import QtCore, QtGui, QtWidgets
-# import test
-# from test import Ui_Form
-#
-#
-# # class Widget(QWidget):
-# #
-# #     def __init__(self):
-# #         super().__init__()
-# #         uic.loadUi("test.ui", self)
-# #         self.label.setText("NewText")
-#
-# class ExampleApp(QtWidgets.QDialog, Ui_Form):
-#     def __init__(self):
-#         # Это здесь нужно для доступа к переменным, методам
-#         # и т.д. в файле design.py
-#         super().__init__()
-#         self.setupUi(self)  # Это нужно для инициализации нашего дизайна
-#
-#
-# def main():
-#     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-#     window = ExampleApp()  # Создаём объект класса ExampleApp
-#     window.show()  # Показываем окно
-#     app.exec_()  # и запускаем приложение
-#
-#
-# if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
-#     main()  # то запускаем функцию main()
+tk.Label(root, text="ВТ:").grid(row=2)
+entry_VT = tk.Entry(root)
+entry_VT.grid(row=2, column=1)
+
+tk.Label(root, text="ФГ:").grid(row=3)
+combo_FG = tk.StringVar(root)
+combo_FG.set("2С19*17") # default value
+tk.OptionMenu(root, combo_FG, "2С19*17", "2С19*1", "2С19*2/2С19*3").grid(row=3, column=1)
+
+tk.Label(root, text="ИАадф5:").grid(row=4)
+entry_IAADF5 = tk.Entry(root)
+entry_IAADF5.grid(row=4, column=1)
+
+tk.Button(root, text='Рассчитать', command=calculate_risk).grid(row=5, column=1, pady=4)
+
+root.mainloop()
