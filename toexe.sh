@@ -1,1 +1,2 @@
-pyinstaller --onedir --windowed --icon "D:/pythonProjectCovid19/app.ico" --add-data "D:/pythonProjectCovid19/gui.ui;." --add-data "D:/pythonProjectCovid19/app.ico;."  "D:/pythonProjectCovid19/main.py"
+#dont forget to add pyinstaller to path
+pyinstaller --onedir --windowed --icon "./app.ico"  "./main.py"
